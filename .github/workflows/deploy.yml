@@ -1,0 +1,38 @@
+name: Hexo Auto Deploy
+
+on:
+  push:
+    branches:
+      - source  # 注意：我们稍后会把你当前的分支重命名为 source
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+      with:
+        ref: source
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: |
+        npm install
+
+    - name: Build Hexo
+      run: |
+        npx hexo generate
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.HEXO_DEPLOY_KEY }}  # 这个密钥我们马上就要去设置
+        publish_dir: ./public
+        publish_branch: main  # 生成的网页会被推送到 main 分支
+        user_name: github-actions[bot]
+        user_email: github-actions[bot]@users.noreply.github.com
